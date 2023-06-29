@@ -1,17 +1,13 @@
 var express = require('express');
-var http = require('http');
 var socket = require('socket.io');
 var app = express();
-//var router = express.Router();
-
-//var serverless = require('serverless-http');
 
 var server = app.listen(4000, () => {
     console.log('started')
 })
 
 app.set('view engine', 'ejs');
-//app.set('views', './public')
+app.set('views', './views')
 app.use(express.static('views'));
 
 var io = socket(server);
@@ -54,11 +50,17 @@ io.on('connection', function(socket) {
     socket.on('leave', function(data) {
         console.log('left')
         var [,second] = socket.rooms;
-        socket.emit('redirect', 'leaving');
         if (userCount == 0) {
             rooms.delete(second);
         }
-        io.sockets.in(second).emit('leave', data.username);
+        socket.emit('redirect', 'leaving');
+        socket.disconnect();
+
+        if (userCount > 1) {
+            userCount = io.sockets.adapter.rooms.get(second).size;
+        }
+
+        io.sockets.in(second).emit('leave', data.username, userCount);
     })
 
 })
@@ -71,5 +73,4 @@ app.get('/:room', function(req, res) {
     res.render('chat', {roomId: req.params.room})
 })
 
-//app.use('/',router)
 

@@ -33,7 +33,6 @@ if (sendButton) {
                 username: username,
                 message: messageBox.value,
             })
-            console.log('sent');
             messageBox.value = '';
         }
     })
@@ -92,9 +91,14 @@ leaveButton.addEventListener('click', () => {
     })
 })
 
-socket.on('leave', function(data) {
-    console.log('hi')
+socket.on('leave', function(data,count) {
     chatBox.innerHTML += `<p class="joined-message"><strong>${data}</strong> left the chat`;
+    if (count == 1) {
+        userCount.innerHTML = `${count} Member`;
+    }
+    else {
+        userCount.innerHTML = `${count} Members`;
+    }
 })
 
 socket.on('redirect', function(reason) {
